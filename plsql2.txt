@@ -1,0 +1,39 @@
+1.Write a function to compute the following. Function
+should take Emp_ num and return
+the cost to company.
+DA = 15% Salary, HRA= 20% of Salary, TA= 8% of Salary.
+Special Allowance will be decided based on the service in
+the company.
+< 1 Year Nil
+>=1 Year< 2 Year 10% of Salary
+>=2 Year< 4 Year 20% of Salary
+>4 Year 30% of Salary
+
+delimiter //
+
+create function specAllow(pempno int) returns decimal(10,2)
+begin
+
+declare vres,vsal,vda,vhra,vta decimal(10,2);
+declare vexp int;
+select sal,timestampdiff(year, hiredate, curdate()) into vsal, vexp from emp where empno=pempno;
+
+set vda = vsal*0.15;
+set vhra = vsal*0.20;
+set vta = vsal*0.08;
+
+if vexp < 2 then
+    set vres = vsal*1.10;
+elseif vexp < 4 then
+    set vres = vsal*1.20;
+elseif vexp >= 4 then
+    set vres = vsal*1.30;
+
+end if;
+
+set vres = vres+vda+vhra+vta;
+return vres;
+
+end //
+
+delimiter ;

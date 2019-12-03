@@ -1,0 +1,60 @@
+delimiter //
+
+create procedure orderType()
+begin
+
+declare vcustid,vordId,vordamt int;
+declare vcname,vstat varchar(30);
+declare dint int default 0;
+declare mycur cursor for select c.custid, c.cname, o.ordId, o.orderAmt from customer c inner join Order_table o on c.custid = o.custid;
+declare continue handler for NOT FOUND set dint = 1;
+
+open mycur;
+label1: loop
+fetch mycur into vcustid,vcname,vordId,vordamt;
+
+if dint=1 then
+    leave label1;
+end if;
+
+if vordamt > 5000 then
+    set vstat = "express";
+elseif vordamt > 1000 then
+    set vstat = "medium";
+else
+    set vstat = "regular";
+end if;
+select vcustid "Id", vcname "Name", vordId "Order Id", vordamt "Amount", vstat "Order Type";
+end loop;
+
+close mycur;
+end//
+delimiter ;
+
+****************************************************************************************************************************************************************
+
+delimiter //
+create function retName(pcustid int) returns varchar(30)
+begin
+
+declare vcname varchar(30);
+select cname into vcname from customer where custid=pcustid;
+
+if vcname = "vivek" then
+    set vcname = "Jadya";
+end if;
+
+return vcname;
+
+end//
+delimiter ;
+
+**************************************************************************************************************************************************************
+
+delimiter //
+
+create trigger orderBackup after insert on Order_table
+for each row
+insert into ord_bkp values(NEW.ordId, New.orderDate, NEW.orderAmt, NEW.custid);
+//
+delimiter ;
